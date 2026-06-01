@@ -16,10 +16,10 @@ def slug(text):
 
 def block(k, v):
     e = EMOJI.get(k, "▸")
-    return f"**{e} {k}**\n\n> {v.strip()}"
+    return f"**{e} {k}**\n\n{v.strip()}"
 
 def render_chapter(ch: dict) -> str:
-    head = " ".join(x for x in (ch.get("no"), ch.get("title")) if x)
+    head = ch.get("title") or ch.get("no") or ""
     lines = [f"# {head}", ""]
     for i, sec in enumerate(ch["sections"]):
         if i > 0:
@@ -41,7 +41,7 @@ def main():
     for ch in book["chapters"]:
         ch_no = ch.get("no") or "未命名"
         ch_title = ch.get("title") or ""
-        s = slug(f"{ch_no}{ch_title}")
+        s = slug(ch_title or ch_no)
         CN = {"一":"1","二":"2","三":"3","四":"4","五":"5","六":"6","七":"7","八":"8","九":"9","十":"10"}
         m = re.search(r"第(\S+)章", ch_no or "")
         if m:
@@ -50,7 +50,7 @@ def main():
         else:
             seq = "0"
         fname = f"{int(seq):02d}_{s}.md"
-        index.append(f"- [{ch_no} {ch_title}]({fname})")
+        index.append(f"- [{ch_title}](chapters/{fname})")
         (out_dir / fname).write_text(render_chapter(ch))
 
     index_path = out_dir / "README.md"
